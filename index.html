@@ -1,0 +1,28 @@
+name: Dockerized HTML with Self-Hosted Runner
+
+on: [push]
+
+jobs:
+  test-runner:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Verify Docker Installation
+        run: docker --version
+
+      - name: Create HTML and Dockerfile
+        run: |
+          mkdir web && cd web
+          echo "<h1>Hello from Dockerized NGINX!</h1>" > index.html
+          echo -e "FROM nginx:latest\nCOPY index.html /usr/share/nginx/html/index.html" > Dockerfile
+
+      - name: Build and Run Docker Container
+        run: |
+          cd web
+          docker build -t my-nginx-html .
+          docker run -d -p 8080:80 --name nginx-container my-nginx-html
+
+      - name: List Running Containers
+        run: docker ps
